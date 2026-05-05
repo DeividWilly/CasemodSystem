@@ -15,4 +15,6 @@ while True:
     ser.write(data)
     print("Dado enviado")
 
+    sleep(1)
+
 
