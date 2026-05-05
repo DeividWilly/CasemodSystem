@@ -2,9 +2,11 @@ import sys
 import time
 import wmi
 import struct
+# import serial
 from Controller import Controller
 from PC import PC
 
+# deviceSerial = serial.Serial(f"{esp32}", 115200)
 port = "8085"
 url = str(f"http://localhost:{port}/data.json")
 path = str(r"LibreHardwareMonitor\LibreHardwareMonitor.exe")
@@ -39,8 +41,9 @@ if __name__ == "__main__":
                                 int(uram * 10), 
                                 int(tram * 10)
                                ) # depois, tram dividido por 10.0
-            print(len(data))
-                               
+            # deviceSerial.write(data)
+            # print(f"{data} | {len(data)} | Dados enviados")
+            print(len(data))              
             time.sleep(1)
     else:
         print("erro")
