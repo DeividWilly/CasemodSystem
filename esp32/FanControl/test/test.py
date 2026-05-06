@@ -9,9 +9,11 @@ while True:
     temp = random.randint(1, 120)
     rpm = random.randint(1,100)
     load = random.randint(1,100)
+    uram = int(113)
+    tram = int(197)
 
-    data = struct.pack("<BBB", temp, load, rpm)
-    
+    data = struct.pack("<BBBHH", temp, load, rpm, uram, tram)
+    ser.write(b'\xAA')
     ser.write(data)
     print("Dado enviado")
     sleep(1)
