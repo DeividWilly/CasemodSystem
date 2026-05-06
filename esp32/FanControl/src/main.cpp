@@ -1,6 +1,7 @@
 #include "esp32-hal-ledc.h"
 #include "freertos/portmacro.h"
 #include <Arduino.h>
+#include <cstdint>
 
 const uint8_t PWM_PIN = 19;
 const uint8_t PWM_CHANNEL = 0;
@@ -14,53 +15,59 @@ uint8_t percentToPWM(uint8_t percent) {
 }
 
 struct __attribute__((packed)) Packet {
-    uint8_t temp;
-    uint8_t load;
-    uint8_t rpm;
+    uint8_t temp; // -> display
+    uint8_t load; // -> display
+    uint8_t rpm; // -> Pwm Control
 };
 
-volatile Packet packet;
+QueueHandle_t queuePWM;
+QueueHandle_t queueDisplay;
 
-uint8_t pwm = 0;
+uint8_t pwm = 255;
 
 SemaphoreHandle_t mutex;
 
 void taskSerial(void *pvParameters){
+    Packet packet;
     while (true){
-
         if (Serial.available() >= sizeof(Packet)) {
             Serial.println("Recebendo serial");
 
             Serial.readBytes((uint8_t*)&packet, sizeof(Packet));
-            if (xSemaphoreTake(mutex, portMAX_DELAY)){
-                pwm = percentToPWM(packet.rpm);
-                xSemaphoreGive(mutex);
-            }
 
-            Serial.printf("Temp: %d | Load: %d | RPM: %d | DUTY: %d\n",
+            xQueueOverwrite(queuePWM, &packet);
+            xQueueOverwrite(queueDisplay, &packet);
+
+            Serial.printf("Temp: %d | Load: %d | RPM: %d\n",
                 packet.temp,
                 packet.load,
-                packet.rpm,
-                pwm
+                packet.rpm
             );
 
-            // Serial.println(uxTaskGetStackHighWaterMark(NULL));
+            Serial.println(uxTaskGetStackHighWaterMark(NULL));
         }
 
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
+        vTaskDelay(1);
     }
 }
 
 void taskPWM(void *pvParameters){
+    Packet packet;
     while (true){
-        if (xSemaphoreTake(mutex, portMAX_DELAY)) {
-            ledcWrite(PWM_CHANNEL, pwm);
-            Serial.printf("Duty de %d enviado!\n", pwm);
-            xSemaphoreGive(mutex);
-        }
 
-        // Serial.println(uxTaskGetStackHighWaterMark(NULL));
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
+        if (xQueueReceive(queuePWM, &packet, portMAX_DELAY)){
+            uint8_t pwm = percentToPWM(packet.rpm);
+
+            if (pwm < 1){
+                pwm = 255;
+            }
+
+            ledcWrite(PWM_CHANNEL, pwm);
+            Serial.printf("Duty de %d enviado para o pino %d!\n", pwm, PWM_PIN);
+        }
+        Serial.println(uxTaskGetStackHighWaterMark(NULL));
+        vTaskDelay(1);
+        
     }
 }
 
@@ -69,21 +76,23 @@ void setup() {
 
     delay(1000);
 
-    mutex = xSemaphoreCreateMutex();
+    queuePWM = xQueueCreate(1, sizeof(Packet));
+    queueDisplay = xQueueCreate(1, sizeof(Packet));
 
-    if (mutex == NULL) {
-        Serial.println("ERRO MUTEX");
+    if (!queuePWM || !queueDisplay) {
+        Serial.println("ERRO QUEUE");
         while (true);
     }
+
     ledcSetup(PWM_CHANNEL, FREQUENCY, RESOLUTION);
     ledcAttachPin(PWM_PIN, PWM_CHANNEL);
 
     xTaskCreatePinnedToCore(
         taskSerial,
-        "RX Date",
+        "Receive data from PC",
         2048,
         NULL,
-        2,
+        3,
         NULL,
         0
     );
@@ -93,7 +102,7 @@ void setup() {
         "PWM duty to Pin",
         2048,
         NULL,
-        1,
+        2,
         NULL,
         0
     );
