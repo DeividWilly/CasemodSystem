@@ -1,24 +1,22 @@
-import sys
 import time
-import wmi
 import struct
 import serial
 import threading
+import requests
+
 from Controller import Controller
 from PC import PC
 
 deviceSerial = serial.Serial("COM3", 115200, timeout=1)
 
-port = "8085"
-url = f"http://localhost:{port}/data.json"
-path = r"LibreHardwareMonitor\LibreHardwareMonitor.exe"
+url = "http://localhost:8085/data.json"
 
 def verifyApp():
-    pc = wmi.WMI()
-    for process in pc.Win32_Process():
-        if "LibreHardwareMonitor.exe" == process.Name:
-            return True
-    return False
+    try:
+        r = requests.get(url, timeout=1)
+        return r.status_code == 200
+    except:
+        return False
 
 def read_serial():
     while True:
@@ -29,16 +27,12 @@ def read_serial():
         except Exception as e:
             print("Erro leitura:", e)
 
-if __name__ == "__main__": 
-    if verifyApp():
-        print("\n" * 3)
+def main_loop():
+    pc = PC()
+    s = Controller()
 
-        pc = PC()
-        s = Controller()
-
-        threading.Thread(target=read_serial, daemon=True).start()
-
-        while True:
+    while True:
+        try:
             temp = int(pc.getTemp(url))
             load = int(pc.getLoad(url))
             rpm = s.setRPM(temp)
@@ -46,11 +40,11 @@ if __name__ == "__main__":
             uram = pc.getRAM()[2]
             tram = pc.getRAM()[0]
 
-            data = struct.pack("<BBBHH", 
-                temp, 
-                load, 
-                srpm, 
-                int(uram * 10), 
+            data = struct.pack("<BBBHH",
+                temp,
+                load,
+                srpm,
+                int(uram * 10),
                 int(tram * 10)
             )
 
@@ -60,6 +54,27 @@ if __name__ == "__main__":
             print(f"TX -> temp:{temp} load:{load} rpm:{srpm}")
 
             time.sleep(1)
-    else:
-        print("erro")
-        print("erro")
+
+        except Exception as e:
+            print("Erro no loop principal:", e)
+            break  # sai pra reconectar
+
+if __name__ == "__main__":
+
+    threading.Thread(target=read_serial, daemon=True).start()
+
+    while True:
+        print("Aguardando LibreHardwareMonitor...")
+
+        while not verifyApp():
+            time.sleep(1)
+
+        print("Conectado ao LibreHardwareMonitor!")
+
+        try:
+            main_loop()
+        except Exception as e:
+            print("Falha geral:", e)
+
+        print("Reconectando em 2s...\n")
+        time.sleep(2)
