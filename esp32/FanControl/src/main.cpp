@@ -18,6 +18,8 @@ struct __attribute__((packed)) Packet {
     uint8_t temp; // -> display
     uint8_t load; // -> display
     uint8_t rpm; // -> Pwm Control
+    uint16_t uram;
+    uint16_t tram;
 };
 
 QueueHandle_t queuePWM;
@@ -38,11 +40,11 @@ void taskSerial(void *pvParameters){
             xQueueOverwrite(queuePWM, &packet);
             xQueueOverwrite(queueDisplay, &packet);
 
-            Serial.printf("Temp: %d | Load: %d | RPM: %d\n",
-                packet.temp,
-                packet.load,
-                packet.rpm
-            );
+            //Serial.printf("Temp: %d | Load: %d | RPM: %d\n",
+            //    packet.temp,
+            //    packet.load,
+            //    packet.rpm
+            //); PRECISA AUMENTAR A STACK SE FOR PRINTAR ISTO
 
             Serial.println(uxTaskGetStackHighWaterMark(NULL));
         }
@@ -71,6 +73,15 @@ void taskPWM(void *pvParameters){
     }
 }
 
+void taskDisplay(void *pvParameters){
+    Packet packet;
+    while (true){
+        if (xQueueReceive(queueDisplay, &packet, portMAX_DELAY)){
+            Serial.printf("DISPLAY: Temp: %d | Load: %d | RAM: N/A\n", packet.temp, packet.load);
+        }
+    }
+}
+
 void setup() {
     Serial.begin(115200);
 
@@ -90,7 +101,7 @@ void setup() {
     xTaskCreatePinnedToCore(
         taskSerial,
         "Receive data from PC",
-        2048,
+        1024,
         NULL,
         3,
         NULL,
@@ -104,7 +115,17 @@ void setup() {
         NULL,
         2,
         NULL,
-        0
+        1
+    );
+
+    xTaskCreatePinnedToCore(
+        taskDisplay,
+        "Show stats on display",
+        2048,
+        NULL,
+        1,
+        NULL,
+        1
     );
 
     Serial.println("ESP32 pronto!");
