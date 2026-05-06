@@ -41,8 +41,10 @@ if __name__ == "__main__":
                                 int(uram * 10), 
                                 int(tram * 10)
                                ) # depois, tram dividido por 10.0
-            print(len(data))
-            print(data)
+            print(int(uram*10))
+            print(int(tram*10))
+            print((int(tram*10))/10.0)
+            time.sleep(1)
                                
     else:
         print("erro")
