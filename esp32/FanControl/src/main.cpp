@@ -18,8 +18,8 @@ struct __attribute__((packed)) Packet {
     uint8_t temp; // -> display
     uint8_t load; // -> display
     uint8_t rpm; // -> Pwm Control
-    uint16_t uram;
-    uint16_t tram;
+    uint16_t uram; // -> display
+    uint16_t tram; // -> display
 };
 
 QueueHandle_t queuePWM;
@@ -27,26 +27,26 @@ QueueHandle_t queueDisplay;
 
 uint8_t pwm = 255;
 
-SemaphoreHandle_t mutex;
-
 void taskSerial(void *pvParameters){
     Packet packet;
+
     while (true){
-        if (Serial.available() >= sizeof(Packet)) {
-            Serial.println("Recebendo serial");
 
-            Serial.readBytes((uint8_t*)&packet, sizeof(Packet));
+        while (Serial.available()) {
 
-            xQueueOverwrite(queuePWM, &packet);
-            xQueueOverwrite(queueDisplay, &packet);
+            uint8_t byte = Serial.read();
 
-            //Serial.printf("Temp: %d | Load: %d | RPM: %d\n",
-            //    packet.temp,
-            //    packet.load,
-            //    packet.rpm
-            //); PRECISA AUMENTAR A STACK SE FOR PRINTAR ISTO
+            if (byte == 0xAA) {
+                while (Serial.available() < sizeof(Packet)) {
+                    vTaskDelay(1);
+                }
 
-            Serial.println(uxTaskGetStackHighWaterMark(NULL));
+                if (Serial.readBytes((uint8_t*)&packet, sizeof(Packet)) == sizeof(Packet)) {
+
+                    xQueueOverwrite(queuePWM, &packet);
+                    xQueueOverwrite(queueDisplay, &packet);
+                }
+            }
         }
 
         vTaskDelay(1);
@@ -65,9 +65,9 @@ void taskPWM(void *pvParameters){
             }
 
             ledcWrite(PWM_CHANNEL, pwm);
-            Serial.printf("Duty de %d enviado para o pino %d!\n", pwm, PWM_PIN);
+            // Serial.printf("Duty de %d enviado para o pino %d!\n", pwm, PWM_PIN);
         }
-        Serial.println(uxTaskGetStackHighWaterMark(NULL));
+        //Serial.printf("Memória sobrando: %d\n", uxTaskGetStackHighWaterMark(NULL));
         vTaskDelay(1);
         
     }
@@ -77,7 +77,11 @@ void taskDisplay(void *pvParameters){
     Packet packet;
     while (true){
         if (xQueueReceive(queueDisplay, &packet, portMAX_DELAY)){
-            Serial.printf("DISPLAY: Temp: %d | Load: %d | RAM: N/A\n", packet.temp, packet.load);
+            float tram = packet.tram / 10.0;
+            float uram = packet.uram / 10.0;
+            Serial.printf("DISPLAY: Temp: %d | Load: %d | RAM: %g/%gGB\n", packet.temp, packet.load, uram, tram);
+            Serial.printf("Memória sobrando: %d\n", uxTaskGetStackHighWaterMark(NULL));
+
         }
     }
 }
@@ -121,7 +125,7 @@ void setup() {
     xTaskCreatePinnedToCore(
         taskDisplay,
         "Show stats on display",
-        2048,
+        8192,
         NULL,
         1,
         NULL,
