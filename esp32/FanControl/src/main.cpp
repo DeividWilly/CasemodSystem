@@ -1,3 +1,4 @@
+#include "esp32-hal-ledc.h"
 #include "freertos/portmacro.h"
 #include <Arduino.h>
 
@@ -17,7 +18,12 @@ struct __attribute__((packed)) Packet {
     uint8_t load;
     uint8_t rpm;
 };
+
 volatile Packet packet;
+
+uint8_t pwm = 0;
+
+SemaphoreHandle_t mutex;
 
 void taskSerial(void *pvParameters){
     while (true){
@@ -26,8 +32,10 @@ void taskSerial(void *pvParameters){
             Serial.println("Recebendo serial");
 
             Serial.readBytes((uint8_t*)&packet, sizeof(Packet));
-
-            uint8_t pwm = percentToPWM(packet.rpm);
+            if (xSemaphoreTake(mutex, portMAX_DELAY)){
+                pwm = percentToPWM(packet.rpm);
+                xSemaphoreGive(mutex);
+            }
 
             Serial.printf("Temp: %d | Load: %d | RPM: %d | DUTY: %d\n",
                 packet.temp,
@@ -36,9 +44,22 @@ void taskSerial(void *pvParameters){
                 pwm
             );
 
-            Serial.println(uxTaskGetStackHighWaterMark(NULL));
+            // Serial.println(uxTaskGetStackHighWaterMark(NULL));
         }
 
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
+    }
+}
+
+void taskPWM(void *pvParameters){
+    while (true){
+        if (xSemaphoreTake(mutex, portMAX_DELAY)) {
+            ledcWrite(PWM_CHANNEL, pwm);
+            Serial.printf("Duty de %d enviado!\n", pwm);
+            xSemaphoreGive(mutex);
+        }
+
+        // Serial.println(uxTaskGetStackHighWaterMark(NULL));
         vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
 }
@@ -48,6 +69,12 @@ void setup() {
 
     delay(1000);
 
+    mutex = xSemaphoreCreateMutex();
+
+    if (mutex == NULL) {
+        Serial.println("ERRO MUTEX");
+        while (true);
+    }
     ledcSetup(PWM_CHANNEL, FREQUENCY, RESOLUTION);
     ledcAttachPin(PWM_PIN, PWM_CHANNEL);
 
@@ -57,6 +84,16 @@ void setup() {
         2048,
         NULL,
         2,
+        NULL,
+        0
+    );
+
+    xTaskCreatePinnedToCore(
+        taskPWM,
+        "PWM duty to Pin",
+        2048,
+        NULL,
+        1,
         NULL,
         0
     );
