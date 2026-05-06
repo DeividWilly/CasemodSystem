@@ -25,7 +25,6 @@ struct __attribute__((packed)) Packet {
 QueueHandle_t queuePWM;
 QueueHandle_t queueDisplay;
 
-uint8_t pwm = 255;
 
 void taskSerial(void *pvParameters){
     Packet packet;
@@ -65,6 +64,7 @@ void taskPWM(void *pvParameters){
             }
 
             ledcWrite(PWM_CHANNEL, pwm);
+            Serial.printf("DUTY: %d\n", pwm);
             // Serial.printf("Duty de %d enviado para o pino %d!\n", pwm, PWM_PIN);
         }
         //Serial.printf("Memória sobrando: %d\n", uxTaskGetStackHighWaterMark(NULL));

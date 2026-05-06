@@ -5,7 +5,7 @@ class Controller():
             (60, 40),
             (70, 60),
             (80, 80),
-            (120, 100)
+            (90, 100)
         ]
         self.tempLimit = 3
         self.alpha_up = 0.7
