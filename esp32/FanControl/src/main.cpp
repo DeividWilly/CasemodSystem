@@ -3,6 +3,8 @@
 #include <Arduino.h>
 #include <cstdint>
 
+uint8_t pwm = 127;
+
 const uint8_t PWM_PIN = 19;
 const uint8_t PWM_CHANNEL = 0;
 
@@ -54,9 +56,11 @@ void taskSerial(void *pvParameters){
 
 void taskPWM(void *pvParameters){
     Packet packet;
+
+    const TickType_t timeout = pdMS_TO_TICKS(2000);
     while (true){
 
-        if (xQueueReceive(queuePWM, &packet, portMAX_DELAY)){
+        if (xQueueReceive(queuePWM, &packet, timeout)){
             uint8_t pwm = percentToPWM(packet.rpm);
 
             if (pwm < 1){
@@ -66,6 +70,8 @@ void taskPWM(void *pvParameters){
             ledcWrite(PWM_CHANNEL, pwm);
             Serial.printf("DUTY: %d\n", pwm);
             // Serial.printf("Duty de %d enviado para o pino %d!\n", pwm, PWM_PIN);
+        } else {
+            ledcWrite(PWM_CHANNEL, 127);
         }
         //Serial.printf("Memória sobrando: %d\n", uxTaskGetStackHighWaterMark(NULL));
         vTaskDelay(1);

@@ -23,9 +23,16 @@ def read_serial():
         try:
             if deviceSerial.in_waiting:
                 data = deviceSerial.readline().decode(errors='ignore').strip()
-                print(f"[ESP32] {data}")
+
+                if data:
+                    print(f"[ESP32] {data}")
+
+            else:
+                time.sleep(0.01)
+
         except Exception as e:
             print("Erro leitura:", e)
+            time.sleep(1)
 
 def main_loop():
     pc = PC()
@@ -53,7 +60,7 @@ def main_loop():
 
             print(f"TX -> temp:{temp} load:{load} rpm:{srpm}")
 
-            time.sleep(1)
+            time.sleep(2)
 
         except Exception as e:
             print("Erro no loop principal:", e)
