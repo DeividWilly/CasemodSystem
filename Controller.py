@@ -18,7 +18,7 @@ class Controller():
             (100, 100)
         ]
         self.rpmCurves = [
-            rpmCurve, rpmCurveSilence, rpmCurveAgressive
+            self.rpmCurve, self.rpmCurveSilence, self.rpmCurveAgressive
         ]
         self.curve = 0
         self.tempLimit = 3

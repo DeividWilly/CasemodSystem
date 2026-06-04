@@ -7,7 +7,7 @@ import requests
 from Controller import Controller
 from PC import PC
 
-deviceSerial = serial.Serial("COM3", 115200, timeout=1)
+deviceSerial = serial.Serial("COM4", 115200, timeout=1)
 
 url = "http://localhost:8085/data.json"
 
@@ -60,7 +60,7 @@ def main_loop():
 
             print(f"TX -> temp:{temp} load:{load} rpm:{srpm}")
 
-            time.sleep(2)
+            time.sleep(1)
 
         except Exception as e:
             print("Erro no loop principal:", e)
