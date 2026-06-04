@@ -1,7 +1,14 @@
+#include "esp32-hal-gpio.h"
 #include "esp32-hal-ledc.h"
 #include "freertos/portmacro.h"
 #include <Arduino.h>
 #include <cstdint>
+#include <SPI.h>
+#include <GxEPD2_BW.h>
+#include <Fonts/FreeMonoBold12pt7b.h>
+#include "display/Layout.h"
+#include "display/Update.h"
+#include "display/DisplayContext.h"
 
 uint8_t pwm = 127;
 
@@ -10,6 +17,24 @@ const uint8_t PWM_CHANNEL = 0;
 
 const uint16_t FREQUENCY = 1000;
 const uint8_t RESOLUTION = 8;
+
+const uint8_t EPD_MOSI = 23;
+const uint8_t EPD_SCK = 18;
+const uint8_t EPD_CS = 5;
+const uint8_t EPD_DC = 17;
+const uint8_t EPD_RES = 16;
+const uint8_t EPD_BUSY = 25;
+
+GxEPD2_BW<GxEPD2_370_GDEY037T03,
+           GxEPD2_370_GDEY037T03::HEIGHT>
+display(
+    GxEPD2_370_GDEY037T03(
+        EPD_CS,
+        EPD_DC,
+        EPD_RES,
+        EPD_BUSY
+    )
+);
 
 uint8_t percentToPWM(uint8_t percent) {
     if (percent > 100) percent = 100;
@@ -24,6 +49,7 @@ struct __attribute__((packed)) Packet {
     uint16_t tram; // -> display
 };
 
+SemaphoreHandle_t displayMutex;
 QueueHandle_t queuePWM;
 QueueHandle_t queueDisplay;
 
@@ -79,24 +105,48 @@ void taskPWM(void *pvParameters){
     }
 }
 
-void taskDisplay(void *pvParameters){
+void taskDisplay(void *pvParameters)
+{
     Packet packet;
-    while (true){
-        if (xQueueReceive(queueDisplay, &packet, portMAX_DELAY)){
-            float tram = packet.tram / 10.0;
-            float uram = packet.uram / 10.0;
-            Serial.printf("DISPLAY: Temp: %d | Load: %d | RAM: %g/%gGB\n", packet.temp, packet.load, uram, tram);
-            Serial.printf("Memória sobrando: %d\n", uxTaskGetStackHighWaterMark(NULL));
 
+    Packet lastPacket = {255, 255, 255, 65535, 65535};
+
+    const TickType_t timeout = pdMS_TO_TICKS(2000);
+
+    while (true)
+    {
+        if (xQueueReceive(queueDisplay, &packet, timeout))
+        {
+            if (packet.temp != lastPacket.temp)
+                updateCPU(display, packet.temp);
+
+            if (packet.load != lastPacket.load)
+                updateLOAD(display, packet.load);
+
+            if (packet.uram != lastPacket.uram || packet.tram != lastPacket.tram)
+                updateURAM(display, packet.uram, packet.tram);
+
+            if (packet.rpm != lastPacket.rpm)
+                updateFAN(display, packet.rpm);
+
+            lastPacket = packet;
         }
+
+        vTaskDelay(pdMS_TO_TICKS(200));
     }
 }
 
 void setup() {
     Serial.begin(115200);
-
-    delay(1000);
-
+    displayMutex = xSemaphoreCreateMutex();
+    SPI.begin(EPD_SCK, -1, EPD_MOSI, EPD_CS);
+    pinMode(EPD_BUSY, INPUT);
+    display.init(115200);
+    display.setRotation(1);
+    display.setFont(&FreeMonoBold12pt7b);
+    display.setTextColor(GxEPD_BLACK);
+    display.setFullWindow();
+    drawStaticLayout(display);
     queuePWM = xQueueCreate(1, sizeof(Packet));
     queueDisplay = xQueueCreate(1, sizeof(Packet));
 
