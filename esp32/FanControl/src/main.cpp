@@ -8,7 +8,7 @@ uint8_t pwm = 127;
 const uint8_t PWM_PIN = 19;
 const uint8_t PWM_CHANNEL = 0;
 
-const uint16_t FREQUENCY = 25000;
+const uint16_t FREQUENCY = 1000;
 const uint8_t RESOLUTION = 8;
 
 uint8_t percentToPWM(uint8_t percent) {
