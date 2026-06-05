@@ -1,48 +1,88 @@
-import sys
 import time
-import wmi
 import struct
+import serial
+import threading
+import requests
+
 from Controller import Controller
 from PC import PC
 
-port = "8085"
-url = str(f"http://localhost:{port}/data.json")
-path = str(r"LibreHardwareMonitor\LibreHardwareMonitor.exe")
+deviceSerial = serial.Serial("COM4", 115200, timeout=1)
+
+url = "http://localhost:8085/data.json"
 
 def verifyApp():
-    pc = wmi.WMI()
-    
-    for process in pc.Win32_Process():
-        if "LibreHardwareMonitor.exe" == process.Name:
-            return True
-    return False
-        
-if __name__ == "__main__": 
-    if verifyApp() == True:
-        print("\n" * 3)
+    try:
+        r = requests.get(url, timeout=1)
+        return r.status_code == 200
+    except:
+        return False
 
-        pc = PC()
-        s = Controller()
+def read_serial():
+    while True:
+        try:
+            if deviceSerial.in_waiting:
+                data = deviceSerial.readline().decode(errors='ignore').strip()
 
-        while True:
+                if data:
+                    print(f"[ESP32] {data}")
 
+            else:
+                time.sleep(0.01)
+
+        except Exception as e:
+            print("Erro leitura:", e)
+            time.sleep(1)
+
+def main_loop():
+    pc = PC()
+    s = Controller()
+
+    while True:
+
+        try:
             temp = int(pc.getTemp(url))
             load = int(pc.getLoad(url))
             rpm = s.setRPM(temp)
             srpm = s.smoothRPM(rpm)
             uram = pc.getRAM()[2]
             tram = pc.getRAM()[0]
-            
-            data = struct.pack("<BBBHH", 
-                                temp, 
-                                load, 
-                                srpm, 
-                                int(uram * 10), 
-                                int(tram * 10)
-                               ) # depois, tram dividido por 10.0
-            print(len(data))
-            print(data)
-                               
+
+            data = struct.pack("<BBBHH",
+                temp,
+                load,
+                srpm,
+                int(uram * 10),
+                int(tram * 10)
+            )
+
+            deviceSerial.write(b'\xAA')
+            deviceSerial.write(data)
+
+            print(f"TX -> temp:{temp} load:{load} rpm:{srpm}")
+
             time.sleep(1)
-    else:
-        print("erro")
+
+        except Exception as e:
+            print("Erro no loop principal:", e)
+            break  # sai pra reconectar
+
+if __name__ == "__main__":
+
+    threading.Thread(target=read_serial, daemon=True).start()
+
+    while True:
+        print("Aguardando LibreHardwareMonitor...")
+
+        while not verifyApp():
+            time.sleep(1)
+
+        print("Conectado ao LibreHardwareMonitor!")
+
+        try:
+            main_loop()
+        except Exception as e:
+            print("Falha geral:", e)
+
+        print("Reconectando em 2s...\n")
+        time.sleep(2)
