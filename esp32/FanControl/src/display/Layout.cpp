@@ -9,7 +9,7 @@ void drawStaticLayout(DisplayType& display)
     {
         display.fillScreen(GxEPD_WHITE);
 
-        display.setCursor(10, 40);
+        /*display.setCursor(10, 40);
         display.print("CPU:");
 
         display.setCursor(10, 80);
@@ -19,7 +19,7 @@ void drawStaticLayout(DisplayType& display)
         display.print("RAM:");
 
         display.setCursor(10, 160);
-        display.print("FAN:");
+        display.print("FAN:");*/
 
     } while (display.nextPage());
 }

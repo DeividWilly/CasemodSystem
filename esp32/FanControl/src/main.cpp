@@ -5,10 +5,11 @@
 #include <cstdint>
 #include <SPI.h>
 #include <GxEPD2_BW.h>
-#include <Fonts/FreeMonoBold12pt7b.h>
+// #include <Fonts/FreeMonoBold12pt7b.h>
 #include "display/Layout.h"
 #include "display/Update.h"
 #include "display/DisplayContext.h"
+#include "Inconsolata_Bold12pt7b.h"
 
 uint8_t pwm = 127;
 
@@ -131,22 +132,27 @@ void taskDisplay(void *pvParameters)
 
             lastPacket = packet;
         }
-
+        Serial.printf("Memória sobrando: %d\n", uxTaskGetStackHighWaterMark(NULL));
         vTaskDelay(pdMS_TO_TICKS(200));
     }
 }
 
 void setup() {
-    Serial.begin(115200);
     displayMutex = xSemaphoreCreateMutex();
+
+    Serial.begin(115200);
     SPI.begin(EPD_SCK, -1, EPD_MOSI, EPD_CS);
+
     pinMode(EPD_BUSY, INPUT);
+
     display.init(115200);
     display.setRotation(1);
-    display.setFont(&FreeMonoBold12pt7b);
+    display.setFont(&Inconsolata_Bold12pt7b);
     display.setTextColor(GxEPD_BLACK);
     display.setFullWindow();
+    
     drawStaticLayout(display);
+
     queuePWM = xQueueCreate(1, sizeof(Packet));
     queueDisplay = xQueueCreate(1, sizeof(Packet));
 
@@ -181,7 +187,7 @@ void setup() {
     xTaskCreatePinnedToCore(
         taskDisplay,
         "Show stats on display",
-        8192,
+        4096,
         NULL,
         1,
         NULL,

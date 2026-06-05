@@ -1,5 +1,6 @@
 #include "Update.h"
 #include "DisplayContext.h"
+#include <set>
 
 static const int X_LABEL = 10;
 static const int X_VALUE = 90;
@@ -9,23 +10,22 @@ static const int BASELINE_OFFSET = 30;
 
 static const int Y_CPU  = 40;
 static const int Y_LOAD = 82;
-static const int Y_RAM  = 124;
-static const int Y_FAN  = 166;   
+static const int Y_RAM  = 134;
+static const int Y_FAN  = 186;   
 
 static void drawPartial(DisplayType& display,
                         int16_t y,
-                        const String& label,
-                        const String& value)
+                        const char* label,
+                        const char* value)
 {
     int16_t top = y - 18;
     if (top < 0) top = 0;
 
     display.setPartialWindow(0, top, 416, LINE_H);
-
     display.firstPage();
     do
     {
-        display.fillRect(0, top, 416, LINE_H, GxEPD_WHITE);
+        display.fillScreen(GxEPD_WHITE);
 
         display.setCursor(X_LABEL, y);
         display.print(label);
@@ -40,7 +40,9 @@ void updateCPU(DisplayType& display, uint8_t value)
 {
     xSemaphoreTake(displayMutex, portMAX_DELAY);
 
-    drawPartial(display, Y_CPU, "CPU:", String(value));
+    char buf[16];
+    snprintf(buf, sizeof(buf), "%d C", value);
+    drawPartial(display, Y_CPU, "CPU:", buf);
 
     xSemaphoreGive(displayMutex);
 }
@@ -48,7 +50,9 @@ void updateCPU(DisplayType& display, uint8_t value)
 void updateLOAD(DisplayType& display, uint8_t value)
 {
     xSemaphoreTake(displayMutex, portMAX_DELAY);
-    drawPartial(display, Y_LOAD, "LOAD:", String(value) + "%");
+    char buf[16];
+    snprintf(buf,sizeof(buf), "%u%%", value);
+    drawPartial(display, Y_LOAD, "LOAD:", buf);
     xSemaphoreGive(displayMutex);
 }
 
@@ -58,15 +62,19 @@ void updateURAM(DisplayType& display, uint16_t uram, uint16_t tram)
     float t = tram / 10.0;
 
     xSemaphoreTake(displayMutex, portMAX_DELAY);
+    char buf[32];
+    snprintf(buf, sizeof(buf), "%.1f / %.1f GB", u, t);
     drawPartial(display, Y_RAM,
                 "RAM:",
-                String(u, 1) + " / " + String(t, 1) + " GB");
+                buf);
     xSemaphoreGive(displayMutex);
 }
 
 void updateFAN(DisplayType& display, uint8_t value)
 {
     xSemaphoreTake(displayMutex, portMAX_DELAY);
-    drawPartial(display, Y_FAN, "FAN:", String(value) + " RPM");
+    char buf[16];
+    snprintf(buf, sizeof(buf), "%d RPM", value);
+    drawPartial(display, Y_FAN, "FAN:", buf);
     xSemaphoreGive(displayMutex);
 }

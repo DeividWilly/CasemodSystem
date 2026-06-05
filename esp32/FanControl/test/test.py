@@ -17,6 +17,6 @@ while True:
     ser.write(b'\xAA')
     ser.write(data)
     print("Dado enviado")
-    sleep(1)
+    sleep(5)
 
 
