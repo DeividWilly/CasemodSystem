@@ -1,4 +1,9 @@
 #include "Layout.h"
+#include "DisplayContext.h"
+//#include "luva.h"
+#include "baku.h"
+#include "assets/fan.h"
+
 
 void drawStaticLayout(DisplayType& display)
 {
@@ -8,18 +13,10 @@ void drawStaticLayout(DisplayType& display)
     do
     {
         display.fillScreen(GxEPD_WHITE);
-
-        /*display.setCursor(10, 40);
-        display.print("CPU:");
-
-        display.setCursor(10, 80);
-        display.print("LOAD:");
-
-        display.setCursor(10, 120);
-        display.print("RAM:");
-
-        display.setCursor(10, 160);
-        display.print("FAN:");*/
-
+        
+        display.setCursor(1, 20);
+        display.print("AGUARDANDO CONEXAO...");
+        
+    
     } while (display.nextPage());
 }

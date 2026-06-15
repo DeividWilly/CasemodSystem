@@ -1,80 +1,90 @@
 #include "Update.h"
 #include "DisplayContext.h"
 #include <set>
+#include <sys/types.h>
+// #include "assets/fan.h"
 
-static const int X_LABEL = 10;
-static const int X_VALUE = 90;
+static uint8_t cpu = 0;
+static uint8_t load = 0;
+static uint16_t uram = 0;
+static uint16_t tram = 0;
 
-static const int LINE_H = 42;
-static const int BASELINE_OFFSET = 30;
+void updateHeader(DisplayType& display, uint8_t temp, uint8_t load, uint8_t rpm, uint16_t uram, uint16_t tram){
+    display.setPartialWindow(0, 0, 416, 30);
 
-static const int Y_CPU  = 40;
-static const int Y_LOAD = 82;
-static const int Y_RAM  = 134;
-static const int Y_FAN  = 186;   
 
-static void drawPartial(DisplayType& display,
-                        int16_t y,
-                        const char* label,
-                        const char* value)
-{
-    int16_t top = y - 18;
-    if (top < 0) top = 0;
-
-    display.setPartialWindow(0, top, 416, LINE_H);
     display.firstPage();
     do
     {
         display.fillScreen(GxEPD_WHITE);
 
-        display.setCursor(X_LABEL, y);
-        display.print(label);
+        display.setCursor(CPU_LABEL_X, HEADER_Y);
+        display.print("CPU:");
 
-        display.setCursor(X_VALUE, y);
-        display.print(value);
-    }
-    while (display.nextPage());
-}
+        char cpuBuf[16];
+        snprintf(cpuBuf, sizeof(cpuBuf), "%u C", temp);
 
-void updateCPU(DisplayType& display, uint8_t value)
-{
-    xSemaphoreTake(displayMutex, portMAX_DELAY);
+        display.setCursor(CPU_VALUE_X, HEADER_Y);
+        display.print(cpuBuf);
 
-    char buf[16];
-    snprintf(buf, sizeof(buf), "%d C", value);
-    drawPartial(display, Y_CPU, "CPU:", buf);
+        display.setCursor(LOAD_LABEL_X, HEADER_Y);
+        display.print("LOAD:");
 
-    xSemaphoreGive(displayMutex);
-}
+        char loadBuf[16];
+        snprintf(loadBuf, sizeof(loadBuf), "%u%%", load);
 
-void updateLOAD(DisplayType& display, uint8_t value)
-{
-    xSemaphoreTake(displayMutex, portMAX_DELAY);
-    char buf[16];
-    snprintf(buf,sizeof(buf), "%u%%", value);
-    drawPartial(display, Y_LOAD, "LOAD:", buf);
-    xSemaphoreGive(displayMutex);
-}
+        display.setCursor(LOAD_VALUE_X, HEADER_Y);
+        display.print(loadBuf);
 
-void updateURAM(DisplayType& display, uint16_t uram, uint16_t tram)
-{
-    float u = uram / 10.0;
-    float t = tram / 10.0;
+        display.setCursor(225, HEADER_Y);
+        display.print("12V:");
 
-    xSemaphoreTake(displayMutex, portMAX_DELAY);
-    char buf[32];
-    snprintf(buf, sizeof(buf), "%.1f / %.1f GB", u, t);
-    drawPartial(display, Y_RAM,
-                "RAM:",
-                buf);
-    xSemaphoreGive(displayMutex);
-}
 
-void updateFAN(DisplayType& display, uint8_t value)
-{
-    xSemaphoreTake(displayMutex, portMAX_DELAY);
-    char buf[16];
-    snprintf(buf, sizeof(buf), "%d RPM", value);
-    drawPartial(display, Y_FAN, "FAN:", buf);
-    xSemaphoreGive(displayMutex);
+        // divisórias
+        display.fillRect(100, 4, 3, 25, GxEPD_BLACK);
+        display.fillRect(216, 4, 3, 25, GxEPD_BLACK);
+
+
+        // barra horizontal
+        display.fillRect(1, 25, 415, 4, GxEPD_BLACK);
+        
+        
+
+    } while (display.nextPage());
+
+    display.setPartialWindow(0, 220, 416, 20);
+
+    display.firstPage();
+    do
+    { 
+        display.setCursor(RAM_LABEL_X, 240);
+        display.print("RAM:");
+
+        char ramBuf[32];
+        snprintf(ramBuf,
+                 sizeof(ramBuf),
+                 "%.1f / %.1f GB",
+                 uram / 10.0f,
+                 tram / 10.0f);
+
+        display.setCursor(RAM_VALUE_X, 240);
+        display.print(ramBuf);  
+
+        display.fillRect(1, 220, 415, 4, GxEPD_BLACK); // horizontal
+        display.fillRect(230, 220, 3, 25, GxEPD_BLACK); // vertical
+
+        display.setCursor(FAN_LABEL_X, 240);
+        display.print("FAN:");
+
+        char fanBuf[16];
+        snprintf(fanBuf,
+                sizeof(fanBuf),
+                "%u%%",
+                rpm);
+        display.setCursor(FAN_VALUE_X, 240);
+        display.print(fanBuf);
+
+        display.fillRect(350, 220, 3, 25, GxEPD_BLACK);
+        
+    } while(display.nextPage());
 }
