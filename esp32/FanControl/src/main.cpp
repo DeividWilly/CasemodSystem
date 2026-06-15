@@ -5,11 +5,11 @@
 #include <cstdint>
 #include <SPI.h>
 #include <GxEPD2_BW.h>
-// #include <Fonts/FreeMonoBold12pt7b.h>
 #include "display/Layout.h"
 #include "display/Update.h"
 #include "display/DisplayContext.h"
-#include "Inconsolata_Bold12pt7b.h"
+// #include "Inconsolata_Bold12pt7b.h"
+#include "display/assets/Inconsolata_Bold12pt7b.h"
 
 uint8_t pwm = 127;
 
