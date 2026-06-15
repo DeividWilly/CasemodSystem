@@ -1,4 +1,7 @@
 #include "Layout.h"
+#include "DisplayContext.h"
+#include "assets/wallpaper.h"
+
 
 void drawStaticLayout(DisplayType& display)
 {
@@ -8,18 +11,9 @@ void drawStaticLayout(DisplayType& display)
     do
     {
         display.fillScreen(GxEPD_WHITE);
-
-        /*display.setCursor(10, 40);
-        display.print("CPU:");
-
-        display.setCursor(10, 80);
-        display.print("LOAD:");
-
-        display.setCursor(10, 120);
-        display.print("RAM:");
-
-        display.setCursor(10, 160);
-        display.print("FAN:");*/
-
+        
+        display.drawBitmap(1, 1, epd_bitmap_images, 416, 240, GxEPD_BLACK);
+        
+    
     } while (display.nextPage());
 }

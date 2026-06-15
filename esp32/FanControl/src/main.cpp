@@ -13,7 +13,9 @@
 
 uint8_t pwm = 127;
 
-const uint8_t PWM_PIN = 19;
+const uint8_t PWM_PIN_0 = 19;
+//const uint8_t PWM_PIN_1 = x;
+//const uint8_t PWM_PIN_2 = x;
 const uint8_t PWM_CHANNEL = 0;
 
 const uint16_t FREQUENCY = 1000;
@@ -118,19 +120,26 @@ void taskDisplay(void *pvParameters)
     {
         if (xQueueReceive(queueDisplay, &packet, timeout))
         {
-            if (packet.temp != lastPacket.temp)
-                updateCPU(display, packet.temp);
+            bool changed =
+                packet.temp != lastPacket.temp ||
+                packet.load != lastPacket.load ||
+                packet.rpm  != lastPacket.rpm  ||
+                packet.uram != lastPacket.uram ||
+                packet.tram != lastPacket.tram;
 
-            if (packet.load != lastPacket.load)
-                updateLOAD(display, packet.load);
+            if (changed)
+            {
+                updateHeader(
+                    display,
+                    packet.temp,
+                    packet.load,
+                    packet.rpm,
+                    packet.uram,
+                    packet.tram
+                );
 
-            if (packet.uram != lastPacket.uram || packet.tram != lastPacket.tram)
-                updateURAM(display, packet.uram, packet.tram);
-
-            if (packet.rpm != lastPacket.rpm)
-                updateFAN(display, packet.rpm);
-
-            lastPacket = packet;
+                lastPacket = packet;
+            }
         }
         Serial.printf("Memória sobrando: %d\n", uxTaskGetStackHighWaterMark(NULL));
         vTaskDelay(pdMS_TO_TICKS(200));
@@ -162,7 +171,7 @@ void setup() {
     }
 
     ledcSetup(PWM_CHANNEL, FREQUENCY, RESOLUTION);
-    ledcAttachPin(PWM_PIN, PWM_CHANNEL);
+    ledcAttachPin(PWM_PIN_0, PWM_CHANNEL);
 
     xTaskCreatePinnedToCore(
         taskSerial,
