@@ -4,8 +4,15 @@
 #include "config/Constants.h"
 #include "config/Pins.h"
 #include "../serial/Packet.h"
+#include "../serial/QueueManager.h"
+
+uint8_t percentToPWM(uint8_t percent) {
+        if (percent > 100) percent = 100;
+        return (uint8_t)((percent / 100.0) * 255);
+    }
 
 void taskPWM(void *pvParameters){
+
     Packet packet;
 
     const TickType_t timeout = pdMS_TO_TICKS(2000);

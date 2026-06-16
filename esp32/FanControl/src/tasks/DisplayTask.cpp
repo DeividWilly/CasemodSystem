@@ -1,10 +1,15 @@
 #include "DisplayTask.h"
 #include <Arduino.h>
+#include "../serial/QueueManager.h"
+#include "../serial/Packet.h"
+#include "../display/DisplayDriver.h"
+#include "../display/Update.h"
+#include "../display/Layout.h"
 
 void taskDisplay(void *pvParameters) {
     Packet packet;
 
-    Packet lastPacket = {255, 255, 255, 65535. 65535};
+    Packet lastPacket = {255, 255, 255, 65535, 65535};
 
     const TickType_t timeout = pdMS_TO_TICKS(2000);
 

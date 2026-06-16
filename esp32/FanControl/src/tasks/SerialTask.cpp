@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include "SerialTask.h"
 #include "../serial/SerialProtocol.h"
+#include "../serial/QueueManager.h"
 
 void taskSerial(void *pvParameters){
     Packet packet;

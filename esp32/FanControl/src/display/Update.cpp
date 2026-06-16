@@ -2,7 +2,6 @@
 #include "DisplayContext.h"
 #include <set>
 #include <sys/types.h>
-// #include "assets/fan.h"
 
 static uint8_t cpu = 0;
 static uint8_t load = 0;
