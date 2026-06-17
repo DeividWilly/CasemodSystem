@@ -16,6 +16,7 @@ while True:
     data = struct.pack("<BBBHH", temp, load, rpm, uram, tram)
     ser.write(b'\xAA')
     ser.write(data)
+    print(f"Bytes enviados: {len(data)}")
     print("Dado enviado")
     sleep(1)
 

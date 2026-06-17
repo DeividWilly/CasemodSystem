@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 
-struct Packet
+struct __attribute__((packed)) Packet
 {
     uint8_t temp;
     uint8_t load;

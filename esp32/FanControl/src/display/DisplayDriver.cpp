@@ -3,6 +3,7 @@
 #include "assets/Inconsolata_Bold12pt7b.h"
 #include <GxEPD2_BW.h>
 #include <SPI.h>
+#include "Layout.h"
 
 GxEPD2_BW<GxEPD2_370_GDEY037T03,
            GxEPD2_370_GDEY037T03::HEIGHT>
@@ -26,4 +27,6 @@ void displayInit(){
     display.setFont(&Inconsolata_Bold12pt7b);
     display.setTextColor(GxEPD_BLACK);
     display.setFullWindow();
+
+    drawStaticLayout(display);
 }

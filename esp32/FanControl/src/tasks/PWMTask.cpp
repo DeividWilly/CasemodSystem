@@ -32,7 +32,7 @@ void taskPWM(void *pvParameters){
         } else {
             ledcWrite(Constants::PWM_CHANNEL, 127);
         }
-        //Serial.printf("Memória sobrando: %d\n", uxTaskGetStackHighWaterMark(NULL));
+        Serial.printf("PWMTask: Memória sobrando: %d\n", uxTaskGetStackHighWaterMark(NULL));
         vTaskDelay(1);
     }
 }
