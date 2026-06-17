@@ -25,3 +25,4 @@ constexpr int HEADER_H = 30;
 
 constexpr int FOOTER_H = 1;
 constexpr int FOOTER_Y = 240;
+

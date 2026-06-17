@@ -1,4 +1,4 @@
-    #pragma once
+#pragma once
 
 #include <GxEPD2_BW.h>
 #include <Fonts/FreeMonoBold12pt7b.h>
