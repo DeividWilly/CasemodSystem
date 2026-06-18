@@ -2,24 +2,25 @@
 #include "SerialTask.h"
 #include "../serial/SerialProtocol.h"
 #include "../serial/QueueManager.h"
+#include "../config/Debug.h"
 
 void taskSerial(void *pvParameters){
+    SERIAL_LOG("Started...\n");
 
     while (true)
 {
     Packet packet;
 
-    //Serial.printf("TX temp=%d load=%d rpm=%d \n", packet.temp, packet.load, packet.rpm);
-
+    SERIAL_LOG("TX temp=%d load=%d rpm=%d uram=%d tram=%d\n", packet.temp, packet.load, packet.rpm, packet.uram, packet.tram);
     if (readPacket(packet)){
-        Serial.println("PACKET OK");
-        Serial.printf("queueDisplay Serial=%p\n", queueDisplay);
+
+        SERIAL_LOG("PACKET OK\n");
+        SERIAL_LOG("queueDisplay Serial=%p\n", queueDisplay);
+
         xQueueOverwrite(queuePWM, &packet);
         xQueueOverwrite(queueDisplay, &packet);
-    } else {
-        //Serial.println("PACKET FAIL");
     }
-    //Serial.printf("SerialTask: Memória sobrando: %d\n", uxTaskGetStackHighWaterMark(NULL));
+    SERIAL_LOG("Memory free: %d\n", uxTaskGetStackHighWaterMark(NULL));
     vTaskDelay(1);
 }
 }

@@ -2,12 +2,13 @@
 #include <Arduino.h>
 #include "../serial/QueueManager.h"
 #include "../serial/Packet.h"
-#include "../display/DisplayDriver.h"
 #include "../display/Update.h"
-#include "../display/Layout.h"
+#include "../config/Debug.h"
+#include "../display/DisplayDriver.h"
+
 
 void taskDisplay(void *pvParameters) {
-    Serial.println("DisplayTask iniciado...");
+    DISPLAY_LOG("Started...\n");
     Packet packet;
 
     Packet lastPacket = {255, 255, 255, 65535, 65535};
@@ -17,23 +18,17 @@ void taskDisplay(void *pvParameters) {
     const TickType_t timeout = pdMS_TO_TICKS(2000);
 
     while (true) {
-        Serial.println("Esperando pacote...");
+        Serial.println("Waiting packet...\n");
         if (xQueueReceive(queueDisplay, &packet, timeout)) {
-            Serial.println("RECEIVED");
-            //Serial.printf(
-            //    "RX temp=%d load=%d rpm=%d\n",
-            //    packet.temp,
-            //    packet.load,
-            //    packet.rpm
-            //);
+            DISPLAY_LOG("RX temp=%d load=%d rpm=%d uram=%u tram=%u\n", packet.temp, packet.load, packet.rpm, packet.uram, packet.tram);
             bool changed =
                 packet.temp != lastPacket.temp ||
                 packet.load != lastPacket.load ||
                 packet.rpm  != lastPacket.rpm  ||
                 packet.uram != lastPacket.uram ||
                 packet.tram != lastPacket.tram;
-            //Serial.printf("changed=%d\n", changed);
-            //Serial.printf("last=%d current=%d\n",lastPacket.temp, packet.temp);
+            DISPLAY_LOG("changed=%d\n", changed);
+            DISPLAY_LOG("last=%d current=%d\n", lastPacket.temp, packet.temp);
             if (changed) {
                 updateHeader(display,
                             packet.temp,

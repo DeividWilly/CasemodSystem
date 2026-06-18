@@ -5,6 +5,7 @@
 #include "config/Pins.h"
 #include "../serial/Packet.h"
 #include "../serial/QueueManager.h"
+#include "config/Debug.h"
 
 uint8_t percentToPWM(uint8_t percent) {
         if (percent > 100) percent = 100;
@@ -12,6 +13,7 @@ uint8_t percentToPWM(uint8_t percent) {
     }
 
 void taskPWM(void *pvParameters){
+    PWM_LOG("Started...\n");
 
     Packet packet;
 
@@ -27,12 +29,14 @@ void taskPWM(void *pvParameters){
             }
 
             ledcWrite(Constants::PWM_CHANNEL, pwm);
-            Serial.printf("DUTY: %d\n", pwm);
+            PWM_LOG("Duty: %d\n", pwm);
+
             // Serial.printf("Duty de %d enviado para o pino %d!\n", pwm, PWM_PIN);
+            PWM_LOG("Duty sended to GPIO %d.\n", Pins::PWM_PIN_0);
         } else {
             ledcWrite(Constants::PWM_CHANNEL, 127);
         }
-        Serial.printf("PWMTask: Memória sobrando: %d\n", uxTaskGetStackHighWaterMark(NULL));
+        PWM_LOG("Free memory: %d\n", uxTaskGetStackHighWaterMark(NULL));
         vTaskDelay(1);
     }
 }

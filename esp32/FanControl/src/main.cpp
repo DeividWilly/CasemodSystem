@@ -10,22 +10,18 @@
 void setup()
 {
     Serial.begin(115200);
-    Serial.println("Serial iniciado.");
+    Serial.println("Serial init.");
 
-    displayInit();
-    Serial.println("Display iniciado.");
+    displayInit(); 
 
     queuePWM = xQueueCreate(1, sizeof(Packet));
     queueDisplay = xQueueCreate(1, sizeof(Packet));
 
     startDisplayTask();
-    Serial.println("Tarefa display iniciada");
     
     startTaskPWM();
-    Serial.println("Tarefa PWM iniciada");
 
     startTaskSerial();
-    Serial.println("Tarefa serial iniciada");
 
     Serial.printf("Packet size=%u\n", sizeof(Packet));
 }
