@@ -31,12 +31,11 @@ void taskPWM(void *pvParameters){
             ledcWrite(Constants::PWM_CHANNEL, pwm);
             PWM_LOG("Duty: %d\n", pwm);
 
-            // Serial.printf("Duty de %d enviado para o pino %d!\n", pwm, PWM_PIN);
             PWM_LOG("Duty sended to GPIO %d.\n", Pins::PWM_PIN_0);
         } else {
             ledcWrite(Constants::PWM_CHANNEL, 127);
         }
-        
+
         PWM_LOG("Free memory: %d\n", uxTaskGetStackHighWaterMark(NULL));
         vTaskDelay(1);
     }
