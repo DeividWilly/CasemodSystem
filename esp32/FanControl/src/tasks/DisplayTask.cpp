@@ -18,17 +18,22 @@ void taskDisplay(void *pvParameters) {
     const TickType_t timeout = pdMS_TO_TICKS(2000);
 
     while (true) {
-        Serial.println("Waiting packet...\n");
+        DISPLAY_LOG("Waiting packet... \n");
+
         if (xQueueReceive(queueDisplay, &packet, timeout)) {
+
             DISPLAY_LOG("RX temp=%d load=%d rpm=%d uram=%u tram=%u\n", packet.temp, packet.load, packet.rpm, packet.uram, packet.tram);
+
             bool changed =
                 packet.temp != lastPacket.temp ||
                 packet.load != lastPacket.load ||
                 packet.rpm  != lastPacket.rpm  ||
                 packet.uram != lastPacket.uram ||
                 packet.tram != lastPacket.tram;
+
             DISPLAY_LOG("changed=%d\n", changed);
             DISPLAY_LOG("last=%d current=%d\n", lastPacket.temp, packet.temp);
+
             if (changed) {
                 updateHeader(display,
                             packet.temp,
@@ -41,7 +46,7 @@ void taskDisplay(void *pvParameters) {
             }
         }
 
-        Serial.printf("displayTask: Memória sobrando: %d\n", uxTaskGetStackHighWaterMark(NULL));
+        DISPLAY_LOG("Free memory: %d\n",uxTaskGetStackHighWaterMark(NULL));
         vTaskDelay(pdMS_TO_TICKS(200));
     }
 }

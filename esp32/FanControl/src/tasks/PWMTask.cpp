@@ -36,6 +36,7 @@ void taskPWM(void *pvParameters){
         } else {
             ledcWrite(Constants::PWM_CHANNEL, 127);
         }
+        
         PWM_LOG("Free memory: %d\n", uxTaskGetStackHighWaterMark(NULL));
         vTaskDelay(1);
     }

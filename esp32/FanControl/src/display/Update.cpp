@@ -37,13 +37,12 @@ void updateHeader(DisplayType& display, uint8_t temp, uint8_t load, uint8_t rpm,
         display.setCursor(225, HEADER_Y);
         display.print("12V:");
 
-
-        // divisórias
+        // Y
         display.fillRect(100, 4, 3, 25, GxEPD_BLACK);
         display.fillRect(216, 4, 3, 25, GxEPD_BLACK);
 
 
-        // barra horizontal
+        // H
         display.fillRect(1, 25, 415, 4, GxEPD_BLACK);
         
         
@@ -68,8 +67,8 @@ void updateHeader(DisplayType& display, uint8_t temp, uint8_t load, uint8_t rpm,
         display.setCursor(RAM_VALUE_X, FOOTER_Y);
         display.print(ramBuf);  
 
-        display.fillRect(1, 220, 415, 4, GxEPD_BLACK); // horizontal
-        display.fillRect(230, 220, 3, 25, GxEPD_BLACK); // vertical
+        display.fillRect(1, 220, 415, 4, GxEPD_BLACK); // H
+        display.fillRect(230, 220, 3, 25, GxEPD_BLACK); // Y
 
         display.setCursor(FAN_LABEL_X, FOOTER_Y);
         display.print("FAN:");
@@ -79,6 +78,7 @@ void updateHeader(DisplayType& display, uint8_t temp, uint8_t load, uint8_t rpm,
                 sizeof(fanBuf),
                 "%u%%",
                 rpm);
+        
         display.setCursor(FAN_VALUE_X, FOOTER_Y);
         display.print(fanBuf);
 
