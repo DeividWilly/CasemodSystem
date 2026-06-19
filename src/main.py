@@ -2,21 +2,17 @@ import time
 import struct
 import serial
 import threading
-import requests
+import wmi
+import clr
+clr.AddReference(r'../LibreHardwareMonitor/LibreHardwareMonitorLib')
+from LibreHardwareMonitor.Hardware import Computer
 
+wmi_Obj = wmi.WMI()
 from Controller import Controller
 from PC import PC
 
 deviceSerial = serial.Serial("COM4", 115200, timeout=1)
 
-url = "http://localhost:8085/data.json"
-
-def verifyApp():
-    try:
-        r = requests.get(url, timeout=1)
-        return r.status_code == 200
-    except:
-        return False
 
 def read_serial():
     while True:
@@ -37,16 +33,20 @@ def read_serial():
 def main_loop():
     pc = PC()
     s = Controller()
+    LibHw = Computer()
+    LibHw.IsCpuEnabled = True
+    LibHw.Open()
+    
 
     while True:
 
         try:
-            temp = int(pc.getTemp(url))
-            load = int(pc.getLoad(url))
+            temp = int(pc.getTemp(LibHw))
+            load = int(pc.getLoad(LibHw))
             rpm = s.setRPM(temp)
             srpm = s.smoothRPM(rpm)
-            uram = pc.getRAM()[2]
-            tram = pc.getRAM()[0]
+            uram = pc.getRAM(wmi_Obj)[2]
+            tram = pc.getRAM(wmi_Obj)[0]
 
             data = struct.pack("<BBBHH",
                 temp,
@@ -73,9 +73,6 @@ if __name__ == "__main__":
 
     while True:
         print("Aguardando LibreHardwareMonitor...")
-
-        while not verifyApp():
-            time.sleep(1)
 
         print("Conectado ao LibreHardwareMonitor!")
 
