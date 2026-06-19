@@ -25,5 +25,3 @@ microcontroller : ESP32
 epaper display : WeaCT 3.7"
 OS: Windows 11 (for LibreHardwareMonitor)
 ```
->>>>>>> 271f40f1e75e2ce82dd958e39cd9e5371d806d30
-
