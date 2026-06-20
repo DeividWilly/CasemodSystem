@@ -56,8 +56,8 @@ Config:
 	OS: Windows 11 (for LibreHardwareMonitor)
 ```
 
-### Task list
+### Task list(per order)
 - [ ] Tray icon in the script (python)
-- [ ] Add buzzer for bipping errors in the system (esp32)
 - [ ] Add DS18B20 sensor for internal temperature monitoring (esp32)
 - [ ] Add INA226 sensor for monitoring 12v line (esp32)
+- [ ] Add buzzer for bipping errors in the system (esp32)
