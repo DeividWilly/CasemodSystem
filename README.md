@@ -25,3 +25,9 @@ microcontroller : ESP32
 epaper display : WeaCT 3.7"
 OS: Windows 11 (for LibreHardwareMonitor)
 ```
+
+### Task list
+- [ ] Tray icon in the script
+- [ ] Add buzzer for bipping errors in the system
+- [ ] Add DS18B20 sensor for internal temperature monitoring
+- [ ] Add INA226 sensor for monitoring 12v line
