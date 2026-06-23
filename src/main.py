@@ -1,85 +1,41 @@
-import time
-import struct
-import serial
+from Config import *
+from Struct import getData
+from Serial import read_serial, send_data
+from Tray import start_tray, update_info
+
 import threading
-import wmi
-import clr
-clr.AddReference(r'../LibreHardwareMonitor/LibreHardwareMonitorLib')
-from LibreHardwareMonitor.Hardware import Computer
-
-wmi_Obj = wmi.WMI()
-from Controller import Controller
-from PC import PC
-
-deviceSerial = serial.Serial("COM4", 115200, timeout=1)
+import time
 
 
-def read_serial():
-    while True:
-        try:
-            if deviceSerial.in_waiting:
-                data = deviceSerial.readline().decode(errors='ignore').strip()
+def main():
 
-                if data:
-                    print(f"[ESP32] {data}")
+    threading.Thread(
+        target=start_tray,
+        daemon=True
+    ).start()
 
-            else:
-                time.sleep(0.01)
-
-        except Exception as e:
-            print("Erro leitura:", e)
-            time.sleep(1)
-
-def main_loop():
-    pc = PC()
-    s = Controller()
-    LibHw = Computer()
-    LibHw.IsCpuEnabled = True
-    LibHw.Open()
-    
+    threading.Thread(
+        target=read_serial,
+        daemon=True
+    ).start()
 
     while True:
 
-        try:
-            temp = int(pc.getTemp(LibHw))
-            load = int(pc.getLoad(LibHw))
-            rpm = s.setRPM(temp)
-            srpm = s.smoothRPM(rpm)
-            uram = pc.getRAM(wmi_Obj)[2]
-            tram = pc.getRAM(wmi_Obj)[0]
+        info, data = getData(
+            PC_OBJ,
+            CONTROLLER_OBJ,
+            HW_OBJECT,
+            WMI_OBJ
+        )
 
-            data = struct.pack("<BBBHH",
-                temp,
-                load,
-                srpm,
-                int(uram * 10),
-                int(tram * 10)
-            )
+        send_data(data)
 
-            deviceSerial.write(b'\xAA')
-            deviceSerial.write(data)
+        update_info(info)
 
-            print(f"TX -> temp:{temp} load:{load} rpm:{srpm}")
+        print(info)
 
-            time.sleep(1)
+        time.sleep(1)
 
-        except Exception as e:
-            print("Erro no loop principal:", e)
-            break  # sai pra reconectar
 
 if __name__ == "__main__":
-
-    threading.Thread(target=read_serial, daemon=True).start()
-
-    while True:
-        print("Aguardando LibreHardwareMonitor...")
-
-        print("Conectado ao LibreHardwareMonitor!")
-
-        try:
-            main_loop()
-        except Exception as e:
-            print("Falha geral:", e)
-
-        print("Reconectando em 2s...\n")
-        time.sleep(2)
+    main()
