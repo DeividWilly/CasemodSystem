@@ -16,7 +16,9 @@ def icon_stop():
 
 
 def after_click(icon, item):
-    if str(item) == "Exit":
+    if str(item) == "Settings":
+        pass # for ui feature
+    elif str(item) == "Exit":
         icon_stop()
 
 
@@ -29,6 +31,7 @@ def start_tray():
         image,
         "Initializing...",
         menu=pystray.Menu(
+            pystray.MenuItem("Settings", after_click)
             pystray.MenuItem("Exit", after_click)
         )
     )
