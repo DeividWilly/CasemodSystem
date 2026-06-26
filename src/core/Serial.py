@@ -1,5 +1,5 @@
 import time
-from Config import DEVICE_SERIAL
+from config.Config import DEVICE_SERIAL
 
 def read_serial():
 

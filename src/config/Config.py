@@ -1,9 +1,8 @@
 import serial
 import wmi
 import clr
-
-from Controller import Controller
-from PC import PC
+from core.Controller import Controller
+from core.PC import PC
 
 clr.AddReference(r'../LibreHardwareMonitor/LibreHardwareMonitorLib')
 from LibreHardwareMonitor.Hardware import Computer

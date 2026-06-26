@@ -1,7 +1,7 @@
-from Config import *
-from Struct import getData
-from Serial import read_serial, send_data
-from Tray import start_tray, update_info
+from config.Config import *
+from core.Struct import getData
+from core.Serial import read_serial, send_data
+from tray.Tray import start_tray, update_info
 
 import threading
 import time
