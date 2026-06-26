@@ -58,6 +58,8 @@ Config:
 
 ### Task list(per order)
 - [x] Tray icon in the script (python)
+- [ ] Add UI with Tkinter for GUI configuration
+- [ ] Optimize for minimal resources usage
 - [ ] Add DS18B20 sensor for internal temperature monitoring (esp32)
 - [ ] Add INA226 sensor for monitoring 12v line (esp32)
 - [ ] Add buzzer for bipping errors in the system (esp32)
