@@ -57,7 +57,7 @@ Config:
 ```
 
 ### Task list(per order)
-- [ ] Tray icon in the script (python)
+- [x] Tray icon in the script (python)
 - [ ] Add DS18B20 sensor for internal temperature monitoring (esp32)
 - [ ] Add INA226 sensor for monitoring 12v line (esp32)
 - [ ] Add buzzer for bipping errors in the system (esp32)
