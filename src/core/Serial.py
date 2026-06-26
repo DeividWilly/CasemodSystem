@@ -1,31 +1,38 @@
+import serial
 import time
-from config.Config import DEVICE_SERIAL
 
-def read_serial():
+class SerialManager:
+    def __init__(self, port, baudrate, timeout=1):
+        self.device = serial.Serial(
+            port=port,
+            baudrate=baudrate,
+            timeout=timeout
+        )
 
-    while True:
-        try:
-            if DEVICE_SERIAL.in_waiting:
+    def read_loop(self):
+        while True:
+            try:
+                if self.device.in_waiting:
+                    data = (
+                        self.device
+                        .readline()
+                        .decode(errors="ignore")
+                        .strip()
+                    )
 
-                data = (
-                    DEVICE_SERIAL
-                    .readline()
-                    .decode(errors='ignore')
-                    .strip()
-                )
+                    if data:
+                        print(f"[ESP32] {data}")
+                else:
+                    time.sleep(0.01)
 
-                if data:
-                    print(f"[ESP32] {data}")
+            except Exception as e:
+                print("Read error:", e)
+                time.sleep(1)
 
-            else:
-                time.sleep(0.01)
+    def send(self, data):
+        self.device.write(b"\xAA")
+        self.device.write(data)
 
-        except Exception as e:
-            print("Read error:", e)
-            time.sleep(1)
-
-
-def send_data(data):
-
-    DEVICE_SERIAL.write(b'\xAA')
-    DEVICE_SERIAL.write(data)
+    def close(self):
+        if self.device.is_open:
+            self.device.close()

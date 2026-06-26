@@ -1,27 +1,31 @@
-import serial
-import wmi
-import clr
-from core.Controller import Controller
-from core.PC import PC
-
-clr.AddReference(r'../LibreHardwareMonitor/LibreHardwareMonitorLib')
-from LibreHardwareMonitor.Hardware import Computer
-
 SERIAL_PORT = "COM4"
 BAUD_RATE = 115200
 
-WMI_OBJ = wmi.WMI()
+# =================== CURVES ======================
 
-DEVICE_SERIAL = serial.Serial(
-    SERIAL_PORT,
-    BAUD_RATE,
-    timeout=1
-)
+PROFILE = 0
+TEMP_LIMIT = 3
+ALPHA_UP = 0.7
+ALPHA_DOWN = 0.2
 
-HW_OBJECT = Computer()
-HW_OBJECT.IsCpuEnabled = True
-HW_OBJECT.IsMemoryEnabled = True
-HW_OBJECT.Open()
+RPM_CURVE_STD = [
+    (50, 20),
+    (60, 40),
+    (70, 60),
+    (80, 80),
+    (90, 100)
+]
 
-PC_OBJ = PC()
-CONTROLLER_OBJ = Controller()
+RPM_CURVE_AGRESSIVE = [
+    (110, 100)
+]
+
+RPM_SURVE_SILENCE = [
+    (50, 20),
+    (60, 20),
+    (70, 40),
+    (80, 50),
+    (90, 60)
+]
+
+PROFILES = [RPM_CURVE_STD, RPM_CURVE_AGRESSIVE, RPM_SURVE_SILENCE]

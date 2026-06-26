@@ -14,7 +14,6 @@ version_app = "v0.9.6"
 package_link = f"https://github.com/LibreHardwareMonitor/LibreHardwareMonitor/releases/download/{version_app}/LibreHardwareMonitor.zip"
 fileZipName = "LibreHardwareMonitor.zip"
 folderName = "LibreHardwareMonitor"
-port = "8085"
 
 def checkFile(zipName, folderName):
     zipPath = pathlib.Path(zipName)

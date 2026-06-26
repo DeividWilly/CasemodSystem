@@ -1,31 +1,46 @@
-class Controller():
-    def __init__(self):
-        self.rpmCurve = [
-            (50, 20),
-            (60, 40),
-            (70, 60),
-            (80, 80),
-            (90, 100)
-        ]
-        self.rpmCurveSilence = [
-            (50, 20),
-            (60, 20),
-            (70, 40),
-            (80, 50),
-            (90, 60)
-        ]
-        self.rpmCurveAgressive = [
-            (100, 100)
-        ]
-        self.rpmCurves = [
-            self.rpmCurve, self.rpmCurveSilence, self.rpmCurveAgressive
-        ]
-        self.curve = 0
-        self.tempLimit = 3
-        self.alpha_up = 0.7
-        self.alpha_down = 0.2
+import struct
+
+class Controller:
+    def __init__(self, pc, serial, config):
+        self.pc = pc
+        self.serial = serial
+        self.config = config
+
+        self.rpmCurves = config.PROFILES
+        self.curve = config.PROFILE
+        self.tempLimit = config.TEMP_LIMIT
+        self.alpha_up = config.ALPHA_UP
+        self.alpha_down = config.ALPHA_DOWN
+
         self.lastRPM = None
         self.currentStep = 0
+
+    def update(self, hw, wmi):
+
+        temp = int(self.pc.getTemp(hw))
+        load = int(self.pc.getLoad(hw))
+
+        rpm = self.setRPM(temp)
+        srpm = self.smoothRPM(rpm)
+
+        tram, _, uram = self.pc.getRAM(wmi)
+
+        data = struct.pack(
+            "<BBBHH",
+            temp,
+            load,
+            srpm,
+            int(uram * 10),
+            int(tram * 10)
+        )
+
+        info = (
+            f"Temp: {temp}°C | "
+            f"Load: {load}% | "
+            f"RPM: {srpm}%"
+        )
+
+        return info, data
 
     def setRPM(self, cpuTemperature):
         while self.currentStep < len(self.rpmCurves[self.curve]) - 1:
@@ -52,11 +67,9 @@ class Controller():
         if abs(targetRPM - self.lastRPM) < 2:
             return int(self.lastRPM)
 
-        if targetRPM > self.lastRPM:
-            alpha = self.alpha_up
-        else:
-            alpha = self.alpha_down
+        alpha = self.alpha_up if targetRPM > self.lastRPM else self.alpha_down
 
         smoothed = alpha * targetRPM + (1 - alpha) * self.lastRPM
         self.lastRPM = smoothed
+
         return int(smoothed)

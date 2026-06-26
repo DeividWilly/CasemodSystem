@@ -1,40 +1,36 @@
-from config.Config import *
-from core.Struct import getData
-from core.Serial import read_serial, send_data
-from tray.Tray import start_tray, update_info
-
+from App import App
 import threading
 import time
 
 
 def main():
+    app = App()
 
-    threading.Thread(
-        target=start_tray,
+    serial_thread = threading.Thread(
+        target=app.serial.read_loop,
         daemon=True
-    ).start()
+    )
+    serial_thread.start()
 
-    threading.Thread(
-        target=read_serial,
-        daemon=True
-    ).start()
+    tray_thread = threading.Thread(
+        target=app.tray.start
+    )
+    tray_thread.start()
 
-    while True:
+    try:
+        while True:
+            info, data = app.controller.update(app.hw, app.wmi)
 
-        info, data = getData(
-            PC_OBJ,
-            CONTROLLER_OBJ,
-            HW_OBJECT,
-            WMI_OBJ
-        )
+            app.serial.send(data)
+            app.tray.update_info(info)
 
-        send_data(data)
+            print(info)
+            time.sleep(1)
 
-        update_info(info)
-
-        print(info)
-
-        time.sleep(1)
+    except KeyboardInterrupt:
+        print("Encerrando aplicação...")
+        app.serial.close()
+        app.tray.stop()
 
 
 if __name__ == "__main__":
