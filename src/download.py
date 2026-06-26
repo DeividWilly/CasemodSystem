@@ -41,43 +41,6 @@ def extractFile(file):
         f.unlink()
         print("File running. Please close the LibreHardwareMonitor process and try again.")
         sys.exit(1)
-        
-def configXML(configPath, port):
-    tree = ET.parse(configPath)
-    root = tree.getroot()
-
-    app_settings = root.find(".//appSettings")
-    if app_settings is None:
-        print("appSettings not found!")
-        return
-
-    run_web_exists = False
-    listener_port_exists = False
-
-    for elem in app_settings.findall("add"):
-        key = elem.get("key")
-        
-        if key == "runWebServerMenuItem":
-            elem.set("value", "true")
-            run_web_exists = True
-            print("WebServer activated.")
-            
-        elif key == "listenerPort":
-            elem.set("value", str(port))
-            listener_port_exists = True
-            print(f"WebServer port set to {port}")
-
-    if not run_web_exists:
-        ET.SubElement(app_settings, "add", key="runWebServerMenuItem", value="true")
-        print("WebServer rule created and activated.")
-
-    if not listener_port_exists:
-        ET.SubElement(app_settings, "add", key="listenerPort", value=str(port))
-        print(f"WebServer port rule created and set to {port}")
-            
-    tree.write(configPath, encoding="utf-8", xml_declaration=True)
-    print(f"File saved in {configPath}")
-    print("Manually restart the LibreHardwareMonitor process if it is already running to ensure the configuration is correct.")
             
 check = checkFile(fileZipName, folderName)
 
@@ -107,15 +70,5 @@ else:
     print("Downloading...")
     downloadFile(package_link, fileZipName)
     extractFile(fileZipName)
-    print("Please manually open and run the LibreHardwareMonitor.exe file, then close it immediately after opening to generate the XML file from your computer.")
-    while True:
-        confirm = input("Please confirm if you have already completed this.[Y/N]: ").upper().strip()
-        if confirm == "Y":
-            configXML("LibreHardwareMonitor/LibreHardwareMonitor.config", port)
-            break
-        elif confirm == "N":
-            print("Please, re-run the script")
-            break
-        else:
-            print("Invalid input, use Y or N")
+    print("Download finished.")
 print("Press ENTER to exit. ")
