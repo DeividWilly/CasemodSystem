@@ -63,3 +63,4 @@ Config:
 - [ ] Add DS18B20 sensor for internal temperature monitoring (esp32)
 - [ ] Add INA226 sensor for monitoring 12v line (esp32)
 - [ ] Add buzzer for bipping errors in the system (esp32)
+- [ ] Add power off trigger for deep mode/light mode (esp32)
