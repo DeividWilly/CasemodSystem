@@ -11,4 +11,6 @@ namespace Pins {
     const uint8_t PWM_PIN_0 = 34;
     //const uint8_t PWM_PIN_1 = 0;
     //const uint8_t PWM_PIN_2 = 0;
+
+    const uint8_t DS18B20_PIN = 26;
 }

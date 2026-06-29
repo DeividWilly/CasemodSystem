@@ -6,6 +6,7 @@
 #include "display/DisplayDriver.h"
 #include "serial/QueueManager.h"
 #include "serial/Packet.h"
+#include "sensors/QueueManager.h"
 
 void setup()
 {
@@ -16,6 +17,7 @@ void setup()
 
     queuePWM = xQueueCreate(1, sizeof(Packet));
     queueDisplay = xQueueCreate(1, sizeof(Packet));
+    queueDisplayTemp = xQueueCreate(5, sizeof(float));
 
     startDisplayTask();
     
