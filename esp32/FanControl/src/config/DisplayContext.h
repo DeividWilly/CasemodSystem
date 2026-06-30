@@ -21,8 +21,9 @@ constexpr int RAM_VALUE_X  = 50;
 constexpr int FAN_LABEL_X = 240;
 constexpr int FAN_VALUE_X = 295;
 
+constexpr int FONT_TEMP_VALUE_X = 360;
+
 constexpr int HEADER_H = 30;
 
 constexpr int FOOTER_H = 1;
 constexpr int FOOTER_Y = 240;
-

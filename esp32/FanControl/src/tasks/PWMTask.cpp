@@ -45,7 +45,7 @@ void startTaskPWM(){
     xTaskCreatePinnedToCore(
         taskPWM,
         "PWM duty to pwm pin",
-        2048,
+        4096,
         NULL,
         2,
         NULL,

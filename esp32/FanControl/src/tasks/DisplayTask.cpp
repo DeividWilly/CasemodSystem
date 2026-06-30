@@ -5,20 +5,25 @@
 #include "../display/Update.h"
 #include "../config/Debug.h"
 #include "../display/DisplayDriver.h"
+#include "../sensors/QueueManager.h"
 
 
 void taskDisplay(void *pvParameters) {
     DISPLAY_LOG("Started...\n");
     Packet packet;
+    float fontTemperature = NAN;
 
     Packet lastPacket = {255, 255, 255, 65535, 65535};
 
     Serial.printf("queueDisplay=%p\n", queueDisplay);
+    Serial.printf("queueSensors=%p\n", queueDisplayTemp);
 
     const TickType_t timeout = pdMS_TO_TICKS(2000);
 
     while (true) {
         DISPLAY_LOG("Waiting packet... \n");
+
+        xQueueReceive(queueDisplayTemp, &fontTemperature, 0);
 
         if (xQueueReceive(queueDisplay, &packet, timeout)) {
 
@@ -40,7 +45,8 @@ void taskDisplay(void *pvParameters) {
                             packet.load,
                             packet.rpm,
                             packet.uram,
-                            packet.tram);
+                            packet.tram,
+                            fontTemperature);
                 
                 lastPacket = packet;
             }

@@ -1,5 +1,6 @@
 #include "Update.h"
 #include "../config/DisplayContext.h"
+#include <cstdio>
 #include <sys/types.h>
 
 static uint8_t cpu = 0;
@@ -7,7 +8,7 @@ static uint8_t load = 0;
 static uint16_t uram = 0;
 static uint16_t tram = 0;
 
-void updateHeader(DisplayType& display, uint8_t temp, uint8_t load, uint8_t rpm, uint16_t uram, uint16_t tram){
+void updateHeader(DisplayType& display, uint8_t temp, uint8_t load, uint8_t rpm, uint16_t uram, uint16_t tram, uint8_t fontTemperature){
     display.setPartialWindow(0, 0, 416, 30);
 
 
@@ -83,6 +84,16 @@ void updateHeader(DisplayType& display, uint8_t temp, uint8_t load, uint8_t rpm,
         display.print(fanBuf);
 
         display.fillRect(350, 220, 3, 25, GxEPD_BLACK);
+
+        char tempBuf[16];
+        snprintf(tempBuf, 
+            sizeof(tempBuf), 
+            "%u C", 
+            fontTemperature);
+            
+        display.setCursor(FONT_TEMP_VALUE_X, FOOTER_Y);
+        display.print(tempBuf);
+
         
     } while(display.nextPage());
 }

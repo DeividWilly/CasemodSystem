@@ -3,6 +3,7 @@
 #include "tasks/DisplayTask.h"
 #include "tasks/PWMTask.h"
 #include "tasks/SerialTask.h"
+#include "tasks/TempTask.h"
 #include "display/DisplayDriver.h"
 #include "serial/QueueManager.h"
 #include "serial/Packet.h"
@@ -24,6 +25,8 @@ void setup()
     startTaskPWM();
 
     startTaskSerial();
+
+    startTaskTemp();
 
     Serial.printf("Packet size=%u\n", sizeof(Packet));
 }
