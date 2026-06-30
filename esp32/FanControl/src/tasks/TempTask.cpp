@@ -17,7 +17,7 @@ void startTaskTemp(){
     xTaskCreatePinnedToCore(
         taskTemp,
         "Read temperature",
-        1024,
+        2048,
         NULL,
         4,
         NULL,

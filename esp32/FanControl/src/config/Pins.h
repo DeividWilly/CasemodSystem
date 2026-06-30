@@ -8,7 +8,7 @@ namespace Pins {
     const uint8_t EPD_RES = 16;
     const uint8_t EPD_BUSY = 18;
 
-    const uint8_t PWM_PIN_0 = 34;
+    const uint8_t PWM_PIN_0 = 25;
     //const uint8_t PWM_PIN_1 = 0;
     //const uint8_t PWM_PIN_2 = 0;
 
