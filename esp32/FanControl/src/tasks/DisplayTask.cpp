@@ -6,24 +6,29 @@
 #include "../config/Debug.h"
 #include "../display/DisplayDriver.h"
 #include "../sensors/QueueManager.h"
-
+#include "../sensors/sensors.h"
 
 void taskDisplay(void *pvParameters) {
     DISPLAY_LOG("Started...\n");
     Packet packet;
-    float fontTemperature = NAN;
+    SensorsData sensors;
 
     Packet lastPacket = {255, 255, 255, 65535, 65535};
 
     Serial.printf("queueDisplay=%p\n", queueDisplay);
-    Serial.printf("queueSensors=%p\n", queueDisplayTemp);
+    Serial.printf("queueSensors=%p\n", queueSensors);
 
     const TickType_t timeout = pdMS_TO_TICKS(2000);
 
     while (true) {
+        //xQueueReceive(queueSensors, &sensors, 0);
+        if (xQueueReceive(queueSensors, &sensors, 0) == pdTRUE) {
+            Serial.printf("Display recebeu V12=%.1f\n", sensors.voltage12);
+        } else {
+            Serial.println("Sem dados na queueSensors");
+        }
         DISPLAY_LOG("Waiting packet... \n");
 
-        xQueueReceive(queueDisplayTemp, &fontTemperature, 0);
 
         if (xQueueReceive(queueDisplay, &packet, timeout)) {
 
@@ -46,8 +51,7 @@ void taskDisplay(void *pvParameters) {
                             packet.rpm,
                             packet.uram,
                             packet.tram,
-                            fontTemperature);
-                
+                            sensors.fontTemperature);
                 lastPacket = packet;
             }
         }

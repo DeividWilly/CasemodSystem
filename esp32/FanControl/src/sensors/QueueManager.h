@@ -3,4 +3,4 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/queue.h>
 
-extern QueueHandle_t queueDisplayTemp;
+extern QueueHandle_t queueSensors;

@@ -10,7 +10,7 @@ void drawStaticLayout(DisplayType& display)
     do
     {
         display.fillScreen(GxEPD_WHITE);
-        
+
         display.drawBitmap(1, 1, epd_bitmap_images, 416, 240, GxEPD_BLACK);
         
     

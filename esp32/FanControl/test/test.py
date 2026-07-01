@@ -7,8 +7,7 @@ ser = serial.Serial("/dev/ttyUSB0", 115200)
 
 while True:
     temp = random.randint(1, 100)
-    # rpm = random.randint(1,100)
-    rpm = int(50)
+    rpm = random.randint(1,100)
     load = random.randint(99,100)
     uram = int(113)
     tram = int(197)

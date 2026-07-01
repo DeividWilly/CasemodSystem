@@ -9,8 +9,13 @@ namespace Pins {
     const uint8_t EPD_BUSY = 18;
 
     const uint8_t PWM_PIN_0 = 25;
-    //const uint8_t PWM_PIN_1 = 0;
-    //const uint8_t PWM_PIN_2 = 0;
+    const uint8_t PWM_PIN_1 = 26;
+    const uint8_t PWM_PIN_2 = 27;
+    const uint8_t PWM_PIN_3 = 14;
 
-    const uint8_t DS18B20_PIN = 26;
+    const uint8_t DS18B20_PIN = 13;
+
+    const uint8_t INA226_SDA = 32;
+    const uint8_t INA226_SCL = 33;
+
 }

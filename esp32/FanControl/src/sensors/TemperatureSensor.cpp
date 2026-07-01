@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#ifdef FAKE_SENSOR
+#if FAKE_SENSOR_TEMP
 
 void ds18b20(){
 

@@ -2,9 +2,9 @@
 
 #include <Arduino.h>
 
-#define DEBUG_SERIAL  1
-#define DEBUG_DISPLAY 1
-#define DEBUG_PWM     1
+#define DEBUG_SERIAL  0
+#define DEBUG_DISPLAY 0
+#define DEBUG_PWM     0
 
 #if DEBUG_SERIAL
     #define SERIAL_LOG(fmt, ...) Serial.printf("[SERIAL] " fmt, ##__VA_ARGS__)
