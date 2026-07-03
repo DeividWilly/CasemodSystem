@@ -5,6 +5,7 @@
 #define DEBUG_SERIAL  0
 #define DEBUG_DISPLAY 0
 #define DEBUG_PWM     0
+#define DEBUG_SENSORS 1
 
 #if DEBUG_SERIAL
     #define SERIAL_LOG(fmt, ...) Serial.printf("[SERIAL] " fmt, ##__VA_ARGS__)
@@ -22,4 +23,10 @@
     #define PWM_LOG(fmt, ...) Serial.printf("[PWM] " fmt, ##__VA_ARGS__)
 #else
     #define PWM_LOG(...)
+#endif
+
+#if DEBUG_SENSORS
+    #define SENSORS_LOG(fmt, ...) Serial.printf("[SENSORS] " fmt, ##__VA_ARGS__)
+#else
+    #define SENSORS_LOG(...)
 #endif

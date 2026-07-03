@@ -18,8 +18,10 @@ void taskPWM(void *pvParameters){
     Packet packet;
 
     const TickType_t timeout = pdMS_TO_TICKS(2000);
+
     ledcSetup(Constants::PWM_CHANNEL, Constants::FREQUENCY, Constants::RESOLUTION);
     ledcAttachPin(Pins::PWM_PIN_0, Constants::PWM_CHANNEL);
+    
     while (true){
         if (xQueueReceive(queuePWM, &packet, timeout)){
             uint8_t pwm = percentToPWM(packet.rpm);

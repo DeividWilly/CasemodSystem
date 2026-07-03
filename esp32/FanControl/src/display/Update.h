@@ -6,4 +6,17 @@
 using DisplayType = GxEPD2_BW<GxEPD2_370_GDEY037T03,
                                GxEPD2_370_GDEY037T03::HEIGHT>;
 
-void updateHeader(DisplayType& display, uint8_t temp, uint8_t load, uint8_t rpm, uint16_t uram, uint16_t tram, uint16_t fontTemperature);
+void updateDisplay(DisplayType& display, 
+                uint8_t temp, 
+                uint8_t load, 
+                uint8_t rpm, 
+                uint16_t uram, 
+                uint16_t tram, 
+                float fontTemperature,
+                float voltage12,
+                float current12,
+                float power12,
+                float voltage19,
+                float current19,
+                float power19
+            );

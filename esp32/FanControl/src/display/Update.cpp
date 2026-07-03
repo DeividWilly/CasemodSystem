@@ -1,5 +1,6 @@
 #include "Update.h"
 #include "../config/DisplayContext.h"
+#include "DisplayDriver.h"
 #include <cstdio>
 #include <sys/types.h>
 
@@ -8,7 +9,19 @@ static uint8_t load = 0;
 static uint16_t uram = 0;
 static uint16_t tram = 0;
 
-void updateHeader(DisplayType& display, uint8_t temp, uint8_t load, uint8_t rpm, uint16_t uram, uint16_t tram, uint16_t fontTemperature){
+void updateDisplay(DisplayType& display, 
+                uint8_t temp, 
+                uint8_t load, 
+                uint8_t rpm, 
+                uint16_t uram, 
+                uint16_t tram, 
+                float fontTemperature,
+                float voltage12,
+                float current12,
+                float power12,
+                float voltage19,
+                float current19,
+                float power19){
     display.setPartialWindow(0, 0, 416, 30);
 
 
@@ -16,6 +29,10 @@ void updateHeader(DisplayType& display, uint8_t temp, uint8_t load, uint8_t rpm,
     do
     {
         display.fillScreen(GxEPD_WHITE);
+        display.fillRect(1, 25, 415, 4, GxEPD_BLACK); // HORIZONTAL LINE
+
+        display.fillRect(100, 4, 3, 25, GxEPD_BLACK); // VERTICAL DIVISOR 1
+        display.fillRect(216, 4, 3, 25, GxEPD_BLACK); // VERTICAL DIVISOR 2
 
         display.setCursor(CPU_LABEL_X, HEADER_Y);
         display.print("CPU:");
@@ -35,18 +52,18 @@ void updateHeader(DisplayType& display, uint8_t temp, uint8_t load, uint8_t rpm,
         display.setCursor(LOAD_VALUE_X, HEADER_Y);
         display.print(loadBuf);
 
-        display.setCursor(225, HEADER_Y);
+        display.setCursor(222, HEADER_Y);
         display.print("12V:");
 
-        // Y
-        display.fillRect(100, 4, 3, 25, GxEPD_BLACK);
-        display.fillRect(216, 4, 3, 25, GxEPD_BLACK);
+        char volt12Buf[32];
+        snprintf(volt12Buf,
+                sizeof(volt12Buf),
+                "%.1fv %.1fW",
+                voltage12,
+                power12);
 
-
-        // H
-        display.fillRect(1, 25, 415, 4, GxEPD_BLACK);
-        
-        
+        display.setCursor(VOLTAGE_12_VALUE, HEADER_Y);
+        display.print(volt12Buf);
 
     } while (display.nextPage());
 
@@ -55,6 +72,11 @@ void updateHeader(DisplayType& display, uint8_t temp, uint8_t load, uint8_t rpm,
     display.firstPage();
     do
     { 
+        display.fillScreen(GxEPD_WHITE);
+
+        display.fillRect(1, 220, 415, 4, GxEPD_BLACK); // HORIZONTAL LINE
+        display.fillRect(230, 220, 3, 25, GxEPD_BLACK); // VERTICAL DIVISOR
+
         display.setCursor(RAM_LABEL_X, FOOTER_Y);
         display.print("RAM:");
 
@@ -67,9 +89,6 @@ void updateHeader(DisplayType& display, uint8_t temp, uint8_t load, uint8_t rpm,
 
         display.setCursor(RAM_VALUE_X, FOOTER_Y);
         display.print(ramBuf);  
-
-        display.fillRect(1, 220, 415, 4, GxEPD_BLACK); // H
-        display.fillRect(230, 220, 3, 25, GxEPD_BLACK); // Y
 
         display.setCursor(FAN_LABEL_X, FOOTER_Y);
         display.print("FAN:");
@@ -88,12 +107,11 @@ void updateHeader(DisplayType& display, uint8_t temp, uint8_t load, uint8_t rpm,
         char tempBuf[32];
         snprintf(tempBuf, 
             sizeof(tempBuf), 
-            "%d C", 
+            "%.0f C", 
             fontTemperature);
             
         display.setCursor(FONT_TEMP_VALUE_X, FOOTER_Y);
         display.print(tempBuf);
-
         
     } while(display.nextPage());
 }
