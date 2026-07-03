@@ -27,6 +27,7 @@ MSI MAG A600DN (600W)
         ├── Hardware Monitoring
         └── ePaper Dashboard
 ```
+![](assets/pwm_view.png)
 
 First, a Python script retrieves CPU, temperature, and workload data (via the LibreHardwareMonitor DLL API). Then, the WMI library retrieves only the system's RAM usage.<br> The Python script determines the fan speed based on the configured curve, helping to cool the system.
 
@@ -56,11 +57,11 @@ Config:
 	OS: Windows 11 (for LibreHardwareMonitor)
 ```
 
-### Task list(per order)
-- [x] Tray icon in the script (python)
-- [ ] Add UI with Tkinter for GUI configuration
-- [ ] Optimize for minimal resources usage
+### Task list(per priority)
+
 - [ ] Add DS18B20 sensor for internal temperature monitoring (esp32)
 - [ ] Add INA226 sensor for monitoring 12v line (esp32)
 - [ ] Add buzzer for bipping errors in the system (esp32)
-- [ ] Add power off trigger for deep mode/light mode (esp32)
+- [x] Tray icon in the script (python)
+- [ ] Add UI with Tkinter for GUI configuration
+- [ ] Optimize for minimal resources usage
