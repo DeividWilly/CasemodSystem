@@ -11,4 +11,6 @@ namespace Constants
 
     constexpr uint8_t DISPLAY_QUEUE_SIZE = 1;
     constexpr uint8_t PWM_QUEUE_SIZE = 1;
+
+    constexpr uint8_t MAX_PWM = 255;
 }

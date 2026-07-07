@@ -11,7 +11,7 @@
 
 uint8_t percentToPWM(uint8_t percent) {
         if (percent > 100) percent = 100;
-        return (uint8_t)((percent / 100.0) * 255);
+        return (uint8_t)((percent / 100.0) * Constants::MAX_PWM);
 }
 
 uint8_t exhaustPWM(uint8_t duty) {
@@ -44,7 +44,7 @@ void taskPWM(void *pvParameters){
             uint8_t pwm = percentToPWM(packet.rpm);
 
             if (pwm < 1){
-                pwm = 255;
+                pwm = Constants::MAX_PWM;
             }
 
             uint8_t pwm_exhaust = exhaustPWM(pwm);
