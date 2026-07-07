@@ -68,7 +68,8 @@ void taskDisplay(void *pvParameters) {
                             sensors.power12,
                             sensors.voltage19,
                             sensors.current19,
-                            sensors.power19);
+                            sensors.power19,
+                            rotate);
                 lastPacket = packet;
             }
         }

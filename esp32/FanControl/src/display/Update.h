@@ -18,5 +18,6 @@ void updateDisplay(DisplayType& display,
                 float power12,
                 float voltage19,
                 float current19,
-                float power19
+                float power19,
+                bool rotate
             );

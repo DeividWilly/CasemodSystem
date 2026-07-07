@@ -21,7 +21,8 @@ void updateDisplay(DisplayType& display,
                 float power12,
                 float voltage19,
                 float current19,
-                float power19){
+                float power19,
+                bool rotate){
     display.setPartialWindow(0, 0, 416, 30);
 
 
@@ -52,18 +53,35 @@ void updateDisplay(DisplayType& display,
         display.setCursor(LOAD_VALUE_X, HEADER_Y);
         display.print(loadBuf);
 
-        display.setCursor(222, HEADER_Y);
-        display.print("12V:");
+        if(rotate == true){
 
-        char volt12Buf[32];
-        snprintf(volt12Buf,
-                sizeof(volt12Buf),
-                "%.1fv %.1fW",
-                voltage12,
-                power12);
+            display.setCursor(222, HEADER_Y);
+            display.print("12V:");
 
-        display.setCursor(VOLTAGE_12_VALUE, HEADER_Y);
-        display.print(volt12Buf);
+            char volt12Buf[32];
+            snprintf(volt12Buf,
+                    sizeof(volt12Buf),
+                    "%.1fv %.1fW",
+                    voltage12,
+                    power12);
+
+            display.setCursor(VOLTAGE_12_VALUE, HEADER_Y);
+            display.print(volt12Buf);
+        } else {
+
+            display.setCursor(222, HEADER_Y);
+            display.print("19V:");
+
+            char volt19Buf[32];
+            snprintf(volt19Buf,
+                    sizeof(volt19Buf),
+                    "%.1fv %.1fW",
+                    voltage19,
+                    power19);
+
+            display.setCursor(VOLTAGE_12_VALUE, HEADER_Y);
+            display.print(volt19Buf);
+        }
 
     } while (display.nextPage());
 
