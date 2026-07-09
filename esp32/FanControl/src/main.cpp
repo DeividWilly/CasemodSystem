@@ -1,5 +1,6 @@
 #include <Arduino.h>
 
+#include "sensors/DS18B20.h"
 #include "sensors/sensors.h"
 #include "tasks/DisplayTask.h"
 #include "tasks/PWMTask.h"
@@ -20,6 +21,8 @@ void setup()
     queuePWM = xQueueCreate(1, sizeof(Packet));
     queueDisplay = xQueueCreate(1, sizeof(Packet));
     queueSensors = xQueueCreate(1, sizeof(SensorsData));
+
+    //ds18b20begin();
 
     startDisplayTask();
     
