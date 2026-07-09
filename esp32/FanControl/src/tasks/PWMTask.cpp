@@ -10,13 +10,19 @@
 #include "config/Debug.h"
 
 uint8_t percentToPWM(uint8_t percent) {
-        if (percent > 100) percent = 100;
-        return (uint8_t)((percent / 100.0) * Constants::MAX_PWM);
+    if (percent > 100) percent = 100;
+
+    uint8_t pwm = (uint8_t)((percent / 100.0f) * Constants::MAX_PWM);
+
+    return Constants::MAX_PWM - pwm;
 }
 
 uint8_t exhaustPWM(uint8_t duty) {
     constexpr uint8_t offset = (10 * 255) / 100; // ≈25
-    return (duty > offset) ? duty - offset : 0;
+
+    return (duty < (Constants::MAX_PWM - offset))
+        ? duty + offset
+        : Constants::MAX_PWM;
 }
 
 void taskPWM(void *pvParameters){
@@ -43,10 +49,6 @@ void taskPWM(void *pvParameters){
         if (xQueueReceive(queuePWM, &packet, timeout)){
             uint8_t pwm = percentToPWM(packet.rpm);
 
-            if (pwm < 1){
-                pwm = Constants::MAX_PWM;
-            }
-
             uint8_t pwm_exhaust = exhaustPWM(pwm);
 
             ledcWrite(0, pwm);
@@ -62,10 +64,13 @@ void taskPWM(void *pvParameters){
                     pwmPins[2],
                     pwmPins[3]);
         } else {
-            ledcWrite(0, 127);
-            ledcWrite(1, 127);
-            ledcWrite(2, 102);
-            ledcWrite(3, 102);
+            uint8_t pwm = percentToPWM(50);
+            uint8_t pwm_exhaust = exhaustPWM(pwm);
+
+            ledcWrite(0, pwm);
+            ledcWrite(1, pwm);
+            ledcWrite(2, pwm_exhaust);
+            ledcWrite(3, pwm_exhaust);
         }
 
         PWM_LOG("Free memory: %d\n", uxTaskGetStackHighWaterMark(NULL));
