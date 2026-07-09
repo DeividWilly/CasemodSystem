@@ -26,6 +26,8 @@ static DallasTemperature sensors(&oneWire);
 
 void ds18b20begin() {
     sensors.begin();
+    Serial.print("Sensors: ");
+    Serial.println(sensors.getDeviceCount());
 }
 
 float readTemperature() {
