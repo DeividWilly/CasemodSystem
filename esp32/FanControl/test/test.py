@@ -3,11 +3,11 @@ import serial
 import struct
 from time import sleep
 
-ser = serial.Serial("/dev/ttyUSB0", 115200)
+ser = serial.Serial("/dev/ttyUSB1", 115200)
 
 while True:
     temp = random.randint(1, 100)
-    rpm = random.randint(1,100)
+    rpm = 100
     load = random.randint(99,100)
     uram = int(113)
     tram = int(197)
