@@ -54,7 +54,7 @@ void taskDisplay(void *pvParameters) {
 
             DISPLAY_LOG("changed=%d\n", changed);
             DISPLAY_LOG("last=%d current=%d\n", lastPacket.temp, packet.temp);
-
+            bool rotate = false;
             if (changed) {
                 updateDisplay(display,
                             packet.temp,
