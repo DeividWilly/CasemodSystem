@@ -52,14 +52,14 @@ For fan control, only the target RPM would be necessary, but I also want to incl
 Config:
 	microcontroller : ESP32 30pin
 	epaper display : WeaCT 3.7"
-	Temperature sensor (comming soon): DS18B20
+	Temperature sensor: DS18B20
 	Voltage Monitoring (coming soon): INA226
 	OS: Windows 11 (for LibreHardwareMonitor)
 ```
 
 ### Task list(per priority)
 
-- [ ] Add DS18B20 sensor for internal temperature monitoring (esp32)
+- [x] Add DS18B20 sensor for internal temperature monitoring (esp32)
 - [ ] Add INA226 sensor for monitoring 12v line (esp32)
 - [ ] Add buzzer for bipping errors in the system (esp32)
 - [x] Tray icon in the script (python)
