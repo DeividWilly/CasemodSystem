@@ -10,6 +10,11 @@
 
 void taskDisplay(void *pvParameters) {
     DISPLAY_LOG("Started...\n");
+
+    bool rotate = false;
+    unsigned long lastRotate = 0;
+    const unsigned long rotateInterval = 10000;
+
     Packet packet;
     SensorsData sensors;
 
@@ -21,6 +26,15 @@ void taskDisplay(void *pvParameters) {
     const TickType_t timeout = pdMS_TO_TICKS(2000);
 
     while (true) {
+
+        unsigned long now = millis();
+
+        if (now - lastRotate >= rotateInterval) {
+            lastRotate = now;
+            rotate = !rotate;
+            DISPLAY_LOG("Rotate changed: %d\n", rotate);
+        }
+
         if (xQueueReceive(queueSensors, &sensors, 0) == pdTRUE) {
             SENSORS_LOG("RX fontTemperature=%.0f voltage12=%.1f current12=%.1f power12=%.1f voltage19=%.1f current19=%.1f power19=%.1f\n",
                         sensors.fontTemperature,
@@ -54,7 +68,7 @@ void taskDisplay(void *pvParameters) {
 
             DISPLAY_LOG("changed=%d\n", changed);
             DISPLAY_LOG("last=%d current=%d\n", lastPacket.temp, packet.temp);
-            bool rotate = false;
+
             if (changed) {
                 updateDisplay(display,
                             packet.temp,
